@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval" >
+
+    <!-- View background color -->
+    <solid
+        android:color="#00ffc8" >
+    </solid>
+
+    <!-- The radius makes the corners rounded -->
+    <size
+        android:width="120dp"
+        android:height="120dp"/>
+</shape>

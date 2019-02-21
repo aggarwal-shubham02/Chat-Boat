@@ -1,20 +1,21 @@
 package textspeech.thezaxis.speechtext;
 
+
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.view.Menu;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
-
 
 import ai.api.AIListener;
 import ai.api.android.AIConfiguration;
@@ -22,6 +23,8 @@ import ai.api.android.AIService;
 import ai.api.model.AIError;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.JsonElement;
 import java.util.Map;
 
@@ -29,21 +32,39 @@ public class MainActivity extends Activity implements AIListener{
 
     private TextView txtSpeechInput;
     private ImageButton btnSpeak;
+    FirebaseUser mUser;
+    List<Chat> chatList = new ArrayList<>();
 
 
-    private Button listenButton;
-    private TextView resultTextView, messageText;
+    //private Button listenButton;
+    Button listenButton;
+    private RecyclerView recyclerView;
+    private TextView resultTextView, messageText, queryText;
     private AIService aiService;
-
+    private ChatAdapter mAdapter;
     private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listenButton =findViewById(R.id.listenButton);
-        resultTextView =findViewById(R.id.resultText);
-        messageText = findViewById(R.id.messageText);
+        listenButton = findViewById(R.id.listenButton);
+        recyclerView = findViewById(R.id.recycler_view);
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mAdapter = new ChatAdapter(chatList);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+
+
+
+
+
+
+
+
+
 
 
         final AIConfiguration config = new AIConfiguration("5987e904ba4b4a699b296c548e336fc7",
@@ -82,29 +103,6 @@ public class MainActivity extends Activity implements AIListener{
         aiService.startListening();
     }
 
-
-    /**
-     * Showing google speech input dialog
-     * */
-    private void promptSpeechInput() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                getString(R.string.speech_prompt));
-        try {
-            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.speech_not_supported),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Receiving speech input
-     * */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -137,13 +135,38 @@ public class MainActivity extends Activity implements AIListener{
                 parameterString += "(" + entry.getKey() + ", " + entry.getValue() + ") ";
             }
         }
+        String receivedMessage = result.getFulfillment().getSpeech();
+        String sentMessage = result.getResolvedQuery();
+
+
+        Chat chat = new Chat(sentMessage, "me");
+        chatList.add(chat);
+        changeRecyclerView();
+        chat = new Chat(receivedMessage, "him");
+        chatList.add(chat);
+        changeRecyclerView();
 
         // Show results in TextView.
-        resultTextView.setText("Query:" + result.getResolvedQuery() +
+        /*resultTextView.setText("Query:" + result.getResolvedQuery() +
                 "\nAction: " + result.getAction() +
                 "\nParameters: " + parameterString);
         messageText.setText(""+result.getFulfillment().getSpeech());
+        queryText.setText("");
+        resolveQuery(result.getAction().toString());*/
 
+    }
+    public void resolveQuery(String action){
+        if (action.equals("query.phone")){
+            if (mUser!=null){
+                String phone = mUser.getPhoneNumber().toString();
+                queryText.setText("Your Phone no: " + phone);
+            }
+            else{
+                queryText.setText("Error retrieving User!");
+                queryText.setTextColor(Color.RED);
+            }
+            //queryText.setText("Your phone no: " );
+        }
     }
 
     @Override
@@ -177,5 +200,18 @@ public class MainActivity extends Activity implements AIListener{
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }*/
+
+
+    private void changeRecyclerView(){
+        mAdapter.notifyDataSetChanged();
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                // Call smooth scroll
+                recyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+            }
+        });
+    }
+
 
 }
