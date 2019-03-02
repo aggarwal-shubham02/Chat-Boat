@@ -3,12 +3,17 @@ package textspeech.thezaxis.speechtext;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -60,10 +65,29 @@ public class MainActivity extends Activity implements AIListener{
     private ChatAdapter mAdapter;
     private final int REQ_CODE_SPEECH_INPUT = 100;
 
+
+    private static String TAG = "PermissionDemo";
+    private static final int RECORD_REQUEST_CODE = 101;
+
+
+    protected void makeRequest() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.RECORD_AUDIO},
+                RECORD_REQUEST_CODE);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        int permission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            //Log.i(TAG, "Permission to record denied");
+            makeRequest();
+        }
         flag = false;
         listenButton = findViewById(R.id.listenButton);
         recyclerView = findViewById(R.id.recycler_view);
