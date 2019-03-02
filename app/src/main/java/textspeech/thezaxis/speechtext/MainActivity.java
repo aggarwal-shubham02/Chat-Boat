@@ -8,7 +8,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
@@ -19,29 +19,28 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ai.api.AIDataService;
 import ai.api.AIListener;
+import ai.api.AIServiceException;
 import ai.api.android.AIConfiguration;
 import ai.api.android.AIService;
 import ai.api.model.AIError;
+import ai.api.model.AIRequest;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
 import textspeech.thezaxis.speechtext.Helper.VolleyCallBack;
 import textspeech.thezaxis.speechtext.Helper.VolleyRequest;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.Map;
 
 public class MainActivity extends Activity implements AIListener{
@@ -56,7 +55,8 @@ public class MainActivity extends Activity implements AIListener{
     boolean flag;
     Result result;
 
-    Button listenButton;
+    Button listenButton, textQueryButton;
+    private EditText editQuery;
     private RecyclerView recyclerView;
     private TextView resultTextView, messageText, queryText;
     private AIService aiService;
@@ -97,6 +97,8 @@ public class MainActivity extends Activity implements AIListener{
         }
         flag = false;
         listenButton = findViewById(R.id.listenButton);
+        textQueryButton = findViewById(R.id.send_query);
+        editQuery = findViewById(R.id.edit_query);
         recyclerView = findViewById(R.id.recycler_view);
         //logoutButton = findViewById(R.id.logout_button);
         initializeActionList();
@@ -122,6 +124,86 @@ public class MainActivity extends Activity implements AIListener{
                 AIConfiguration.RecognitionEngine.System);
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
+        //code to send queries from text
+        textQueryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AIDataService aiDataService = new AIDataService(config);
+
+
+                final AIRequest aiRequest = new AIRequest();
+                aiRequest.setQuery(editQuery.getText().toString());
+
+
+
+
+
+
+
+                new AsyncTask<AIRequest, Void, AIResponse>() {
+                    @Override
+                    protected AIResponse doInBackground(AIRequest... requests) {
+                        final AIRequest request = requests[0];
+                        try {
+                            final AIResponse response = aiDataService.request(aiRequest);
+                            return response;
+                        } catch (AIServiceException e) {
+                        }
+                        return null;
+                    }
+                    @Override
+                    protected void onPostExecute(AIResponse aiResponse) {
+                        if (aiResponse != null) {
+                            // process aiResponse here
+                            String sentMessage = editQuery.getText().toString();
+                            result = aiResponse.getResult();
+                            String receivedMessage = result.getFulfillment().getSpeech();
+                            Chat chat = new Chat(sentMessage, "me");
+                            chatList.add(chat);
+                            editQuery.setText("");
+                            changeRecyclerView();
+                            chat = new Chat(receivedMessage, "him");
+                            chatList.add(chat);
+                            changeRecyclerView();
+                        }
+                    }
+                }.execute(aiRequest);
+
+
+
+
+
+
+
+
+
+            }
+        });
+
+
+
+        /*new AsyncTask<AIRequest, Void, AIResponse>() {
+            @Override
+            protected AIResponse doInBackground(AIRequest... requests) {
+                final AIRequest request = requests[0];
+                try {
+                    final AIResponse response = aiDataService.request(aiRequest);
+                    return response;
+                } catch (AIServiceException e) {
+                }
+                return null;
+            }
+            @Override
+            protected void onPostExecute(AIResponse aiResponse) {
+                if (aiResponse != null) {
+                    // process aiResponse here
+                    result = aiResponse.getResult();
+                    String ss = result.getFulfillment().getSpeech();
+                    Toast.makeText(MainActivity.this, ""+ss, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(aiRequest);*/
+
 
 
 

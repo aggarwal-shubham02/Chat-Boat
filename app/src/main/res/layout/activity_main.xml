@@ -26,6 +26,26 @@
             android:id="@+id/listenButton"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_below="@id/listenButton"
+            android:weightSum="20"
+            android:layout_height="wrap_content">
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="19.99"
+                android:id="@+id/edit_query"/>
+            <Button
+                android:layout_width="60dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="0.01"
+                android:id="@+id/send_query"
+                android:background="@drawable/send_icon"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
 
     </RelativeLayout>
     <!--<Button
