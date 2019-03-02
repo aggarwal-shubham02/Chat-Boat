@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:scaleType="fitXY"
+        android:padding="10dp"
+        android:src="@drawable/dalmia_logo"
+        android:id="@+id/aboutDalmia_Logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dalmia_text"
+        android:text="About Dalmia Cement"
+        android:textSize="26dp"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/aboutDalmia_Logo"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dalmiaSince_text"
+        android:text="A leader in cement manufacturing since 1939"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_below="@id/dalmia_text"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/aboutDalmia_text1"
+        android:text="We have been a leader in cement manufacturing since 1939. And, though the modern cement manufacturing market in India is getting more and more competitive with each passing day, we are only growing over time."
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_below="@+id/dalmiaSince_text"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/aboutDalmia_link"
+        android:text="more..."
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/aboutDalmia_text1"
+        android:padding="10dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/Social_Link_LinearLayout"
+        android:layout_below="@+id/aboutDalmia_link"
+        android:layout_marginBottom="20dp"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/facebook_link_logo"
+            android:src="@drawable/facebook_link_logo"
+            android:layout_below="@+id/aboutDalmia_link"/>
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/linkedIn_link_logo"
+            android:src="@drawable/linkedin_link_logo"
+            android:layout_below="@+id/aboutDalmia_link"
+            android:layout_toRightOf="@id/facebook_link_logo"/>
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/youtube_link_logo"
+            android:src="@drawable/youtube_link_logo"
+            android:layout_below="@+id/aboutDalmia_link"
+            android:layout_toRightOf="@id/linkedIn_link_logo"/>
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/twitter_link_logo"
+            android:src="@drawable/twitter_link_logo"
+            android:layout_below="@+id/aboutDalmia_link"
+            android:layout_toRightOf="@id/youtube_link_logo"/>
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/instagram_link_logo"
+            android:src="@drawable/instagram_link_logo"
+            android:layout_below="@+id/aboutDalmia_link"
+            android:layout_toRightOf="@id/twitter_link_logo"/>
+
+    </LinearLayout>
+
+    <!--<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ContactUs_textView"
+        android:layout_below="@+id/Social_Link_LinearLayout"
+        android:text="Contact Us"
+        android:textStyle="bold"
+        android:textSize="25sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dalmiaContactNumber"
+        android:layout_below="@+id/Social_Link_LinearLayout"
+        android:layout_marginTop="20dp"
+        android:text=""/>-->
+
+    <!--<TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/aboutDalmia_text2"
+        android:layout_below="@+id/aboutDalmia_text1"
+        android:text="We have cement manufacturing plants in southern states of Tamil Nadu (Dalmiapuram & Ariyalur) and Andhra Pradesh (Kadapa), with a capacity of 9 million tonnes per annum. A leader in cement manufacturing since 1939 ... to know more click below"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:padding="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/aboutDalmia_link"
+        android:text="https://www.dalmiacement.com/about-dalmia-cement.html"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:padding="10dp"
+        android:layout_below="@+id/aboutDalmia_text2"/>-->
+
+</RelativeLayout>
