@@ -7,4 +7,10 @@
     <string name="tap_on_mic">Tap on mic to speak</string>
     <string name="token_monisz786">42c6085b6f234b7981c70992e5379ee7</string>
     <string name="token_ahmadmohd238">5987e904ba4b4a699b296c548e336fc7</string>
+
+    <string name="title_activity_splash2">Splash2</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
 </resources>
