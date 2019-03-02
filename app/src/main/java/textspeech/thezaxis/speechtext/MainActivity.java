@@ -56,14 +56,13 @@ public class MainActivity extends Activity implements AIListener{
     boolean flag;
     Result result;
 
-
-    //private Button listenButton;
     Button listenButton;
     private RecyclerView recyclerView;
     private TextView resultTextView, messageText, queryText;
     private AIService aiService;
     private ChatAdapter mAdapter;
     private final int REQ_CODE_SPEECH_INPUT = 100;
+    private String customerID;
 
 
     private static String TAG = "PermissionDemo";
@@ -80,6 +79,14 @@ public class MainActivity extends Activity implements AIListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        String phone = mUser.getPhoneNumber();
+        if (phone.contains("+91")){
+            phone = phone.substring(3, phone.length());
+        }
+        initializeCustomer(phone);
+
 
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO);
@@ -91,24 +98,23 @@ public class MainActivity extends Activity implements AIListener{
         flag = false;
         listenButton = findViewById(R.id.listenButton);
         recyclerView = findViewById(R.id.recycler_view);
-        logoutButton = findViewById(R.id.logout_button);
+        //logoutButton = findViewById(R.id.logout_button);
         initializeActionList();
 
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
         mAdapter = new ChatAdapter(chatList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        logoutButton.setOnClickListener(new View.OnClickListener() {
+        /*logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
             }
-        });
+        });*/
 
 
         final AIConfiguration config = new AIConfiguration("5987e904ba4b4a699b296c548e336fc7",
@@ -142,6 +148,33 @@ public class MainActivity extends Activity implements AIListener{
             }
         });*/
 
+    }
+
+    private void initializeCustomer(String phone) {
+        VolleyRequest request1 = new VolleyRequest();
+        String tableName = "Customer";
+        String query = "Select * from " +tableName +" where CustomerContact = "+phone;
+        //Toast.makeText(this, ""+query, Toast.LENGTH_SHORT).show();
+        request1.fetchData(new VolleyCallBack(){
+            @Override
+            public void onSuccess(JSONArray resultArray){
+                //Toast.makeText(MainActivity.this, ""+result, Toast.LENGTH_SHORT).show();
+                try{
+                    JSONArray json =resultArray;
+                    JSONObject obj;
+                    //int size=json.length();
+                    obj = json.getJSONObject(0);
+                    customerID = obj.getString("CustomerID");
+                    //return name;
+                    //Toast.makeText(MainActivity.this, ""+name, Toast.LENGTH_LONG).show();
+                }catch(JSONException e) {
+                    //Toast.makeText(MainActivity.this,"No records present..",Toast.LENGTH_SHORT).show();
+                }catch(Exception e){
+                    //Toast.makeText(MainActivity.this,"An error has occured.."+e, Toast.LENGTH_SHORT).show();
+                }
+                //return name;
+            }
+        }, this, query);
     }
 
     private void initializeActionList() {
@@ -201,6 +234,7 @@ public class MainActivity extends Activity implements AIListener{
         if (action.equals("query.phone")){
             if (mUser!=null){
                 String phone = mUser.getPhoneNumber().toString();
+                Toast.makeText(this, ""+customerID, Toast.LENGTH_SHORT).show();
                 String receivedMessage = result.getFulfillment().getSpeech();
                 receivedMessage = receivedMessage+ " " +phone;
                 Chat chat = new Chat(receivedMessage, "him");
@@ -208,7 +242,7 @@ public class MainActivity extends Activity implements AIListener{
                 changeRecyclerView();
             }
         }
-        if (action.equals("query.name")){
+        else if (action.equals("query.name")){
             //String name;
             if(mUser!=null){
                 String phone = mUser.getPhoneNumber();
@@ -245,22 +279,67 @@ public class MainActivity extends Activity implements AIListener{
                         //return name;
                     }
                 }, this, query);
-
-
-
-                /*
-                String response = request1.func(query, this);
-                Toast.makeText(this, ""+response, Toast.LENGTH_SHORT).show();
-                /*try {
-                    JSONObject jsonObject = jsonArray.getJSONObject(0);
-                    String name = jsonObject.getString("CustomerName");
-                    return name;
-                    //String chatMessage = name;
-                    //Chat chat = new chat
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }*/
             }
+        }
+        else if (action.equals("query.order.status")){
+
+            VolleyRequest request1 = new VolleyRequest();
+            String tableName = "Orders";
+            String query = "Select * from " +tableName +" where CustomerID = "+customerID;
+            request1.fetchData(new VolleyCallBack(){
+                @Override
+                public void onSuccess(JSONArray resultArray){
+                    //Toast.makeText(MainActivity.this, ""+result, Toast.LENGTH_SHORT).show();
+                    try{
+                        JSONArray json =resultArray;
+                        JSONObject obj;
+                        int size=json.length()-1;
+                        obj = json.getJSONObject(0);
+                        String receivedMessage = "you have "+ size + " order(s)";
+                        Chat chat = new Chat(receivedMessage, "him");
+                        chatList.add(chat);
+                        changeRecyclerView();
+                        for (int i = 0 ; i<size ; i++){
+                            obj = json.getJSONObject(i);
+                            String orderID = obj.getString("OrderID");
+                            String orderStatus = obj.getString("OrderStatus");
+                            String dateOfDelivery = obj.getString("ScheduledDeliveryDate");
+                            receivedMessage = "Order ID: " +orderID + "\nOrder Status: " +orderStatus +"\nExpected Delivery date: " +dateOfDelivery;
+                            chat = new Chat(receivedMessage, "him");
+                            chatList.add(chat);
+                            changeRecyclerView();
+
+                        }
+                        //customerID = obj.getString("CustomerID");
+                        //Toast.makeText(MainActivity.this, ""+orderID, Toast.LENGTH_SHORT).show();
+                        /*String receivedMessage = result.getFulfillment().getSpeech();
+                        receivedMessage = receivedMessage+ " " +name;
+                        Chat chat = new Chat(receivedMessage, "him");
+                        chatList.add(chat);
+                        changeRecyclerView();*/
+
+                        //return name;
+                        //Toast.makeText(MainActivity.this, ""+name, Toast.LENGTH_LONG).show();
+                    }catch(JSONException e) {
+                        //Toast.makeText(MainActivity.this,"No records present..",Toast.LENGTH_SHORT).show();
+                    }catch(Exception e){
+                        //Toast.makeText(MainActivity.this,"An error has occured.."+e, Toast.LENGTH_SHORT).show();ddddd
+                    }
+                    //return name;
+                }
+            }, this, query);
+        }
+        else if(action.equals("action.signout")){
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    FirebaseAuth.getInstance().signOut();
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }, 800);
+
         }
     }
 
