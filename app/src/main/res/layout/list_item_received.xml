@@ -13,13 +13,16 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
         android:id="@+id/profile_image"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@drawable/logo"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/text_view"
+        android:background="@drawable/rounded_rectangle_received"
         android:textSize="30sp"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_toRightOf="@id/profile_image"/>
 </RelativeLayout>

@@ -3,11 +3,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/back"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/upperRelative">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/logout_button"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:text="log-out"/>
+    </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/recycler_view"
+        android:layout_below="@id/upperRelative"
         android:layout_height="wrap_content"
         android:layout_above="@id/relative_lower">
     </android.support.v7.widget.RecyclerView>
@@ -17,7 +32,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:gravity="center"
         android:id="@+id/relative_lower">
         <Button
             android:layout_width="wrap_content"
@@ -26,6 +40,7 @@
             android:id="@+id/listenButton"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"/>
+
     </RelativeLayout>
     <!--<Button
         android:layout_width="wrap_content"

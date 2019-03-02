@@ -15,17 +15,25 @@ import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.concurrent.TimeUnit;
+
+import textspeech.thezaxis.speechtext.Helper.VolleyCallBack;
+import textspeech.thezaxis.speechtext.Helper.VolleyRequest;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText editPhone, editCode;
     private Button buttonSendCode, buttonSignIn;
     private FirebaseAuth mAuth;
-
+    int customerCount;
     String codeSent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +41,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         editCode = findViewById(R.id.editTextCode);
         editPhone = findViewById(R.id.editTextPhone);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null){
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
+
         buttonSendCode = findViewById(R.id.buttonGetVerificationCode);
         buttonSignIn = findViewById(R.id.buttonSignIn);
         mAuth = FirebaseAuth.getInstance();
@@ -45,9 +60,29 @@ public class LoginActivity extends AppCompatActivity {
         buttonSendCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendVerificationCode();
+                isUserExist(editPhone.getText().toString());
             }
         });
+    }
+
+    private void isUserExist(String phone) {
+        VolleyRequest request1 = new VolleyRequest();
+
+        String query = "select count(*) as count from Customer where CustomerContact ="+phone;
+        request1.fetchData(new VolleyCallBack() {
+            @Override
+            public void onSuccess(JSONArray resultArray) {
+                try {
+                    JSONObject obj = resultArray.getJSONObject(0);
+                     customerCount= obj.getInt("count");
+                    if (customerCount==1){
+                        sendVerificationCode();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, this, query);
     }
 
     private void verifySignInCode() {
@@ -66,6 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                                     "Login Successfull", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
+                            finish();
                         } else {
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 Toast.makeText(getApplicationContext(),
