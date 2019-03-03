@@ -3,9 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back"
+    android:background="#051219"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/profile_Button"
+        android:background="@drawable/person"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:elevation="1dp"
+        android:layout_margin="5dp"/>
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:id="@+id/recycler_view"
@@ -16,35 +25,38 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="140dp"
         android:layout_alignParentBottom="true"
         android:id="@+id/relative_lower">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Listen"
+        <ImageButton
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:id="@+id/listenButton"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"/>
+            android:layout_centerHorizontal="true" />
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_below="@id/listenButton"
-            android:weightSum="20"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:elevation="1dp"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:weightSum="10">
+            <ImageButton
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_weight="0.1"
+                android:id="@+id/switch_keyboard_button"
+                android:background="@drawable/keyboard"/>
             <EditText
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/text_query"
+                android:textColor="#fff"
                 android:layout_height="wrap_content"
-                android:layout_weight="19.99"
-                android:id="@+id/edit_query"/>
+                android:layout_weight="9"/>
             <Button
                 android:layout_width="60dp"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="0.01"
-                android:id="@+id/send_query"
-                android:background="@drawable/send_icon"
-                android:layout_height="wrap_content" />
-
-
+                android:layout_height="wrap_content"
+                android:id="@+id/send_button"
+                android:background="@drawable/send_icon"/>
         </LinearLayout>
 
     </RelativeLayout>

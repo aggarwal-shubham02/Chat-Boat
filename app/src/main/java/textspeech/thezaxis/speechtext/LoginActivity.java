@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
-
         buttonSendCode = findViewById(R.id.buttonGetVerificationCode);
         buttonSignIn = findViewById(R.id.buttonSignIn);
         mAuth = FirebaseAuth.getInstance();
@@ -82,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        }, this, query);
+        },"http://www.skyline69.co.nf/request.php?query=",  this, query);
     }
 
     private void verifySignInCode() {

@@ -8,5 +8,6 @@
     <color name="bg_gradient_end">#6b394c</color>
     <color name="black">#000000</color>
 
+    <color name="colorGray">#CFD8DC</color>
     <color name="black_overlay">#66000000</color>
 </resources>

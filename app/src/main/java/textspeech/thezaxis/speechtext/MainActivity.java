@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -33,14 +34,19 @@ import ai.api.model.AIError;
 import ai.api.model.AIRequest;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
+import textspeech.thezaxis.speechtext.Helper.CustomDialogClass;
 import textspeech.thezaxis.speechtext.Helper.VolleyCallBack;
 import textspeech.thezaxis.speechtext.Helper.VolleyRequest;
+
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.JsonElement;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends Activity implements AIListener{
@@ -55,7 +61,9 @@ public class MainActivity extends Activity implements AIListener{
     boolean flag;
     Result result;
 
-    Button listenButton, textQueryButton;
+    ImageButton listenButton;
+    ImageButton keyboardSwitchButton,  profileButton;
+    Button sendButton;
     private EditText editQuery;
     private RecyclerView recyclerView;
     private TextView resultTextView, messageText, queryText;
@@ -63,10 +71,10 @@ public class MainActivity extends Activity implements AIListener{
     private ChatAdapter mAdapter;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private String customerID;
-
-
+    boolean keyboardSwitch = false;
     private static String TAG = "PermissionDemo";
     private static final int RECORD_REQUEST_CODE = 101;
+    TextToSpeech tts;
 
 
     protected void makeRequest() {
@@ -86,6 +94,25 @@ public class MainActivity extends Activity implements AIListener{
             phone = phone.substring(3, phone.length());
         }
         initializeCustomer(phone);
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    int ttsLang = tts.setLanguage(new Locale("en", "IN"));
+
+                    if (ttsLang == TextToSpeech.LANG_MISSING_DATA
+                            || ttsLang == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        //Log.e("TTS", "The Language is not supported!");
+                    } else {
+                        //Log.i("TTS", "Language Supported.");
+                    }
+                    //Log.i("TTS", "Initialization success.");
+                } else {
+                    Toast.makeText(getApplicationContext(), "TTS Initialization failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
 
         int permission = ContextCompat.checkSelfPermission(this,
@@ -97,8 +124,48 @@ public class MainActivity extends Activity implements AIListener{
         }
         flag = false;
         listenButton = findViewById(R.id.listenButton);
-        textQueryButton = findViewById(R.id.send_query);
-        editQuery = findViewById(R.id.edit_query);
+        profileButton = findViewById(R.id.profile_Button);
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+            }
+        });
+
+        Glide.with(this).load(R.drawable.init).into(listenButton);
+
+        /*textQueryButton = findViewById(R.id.send_query);
+        editQuery = findViewById(R.id.edit_query);*/
+        keyboardSwitchButton = findViewById(R.id.switch_keyboard_button);
+        sendButton = findViewById(R.id.send_button);
+        editQuery = findViewById(R.id.text_query);
+        sendButton.setVisibility(View.INVISIBLE);
+        editQuery.setVisibility(View.INVISIBLE);
+        keyboardSwitchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!keyboardSwitch){
+                    keyboardSwitch=true;
+                    keyboardSwitchButton.setBackground(getResources().getDrawable(R.drawable.keyboard_hide));
+                    listenButton.setVisibility(View.GONE);
+                    sendButton.setVisibility(View.VISIBLE);
+                    editQuery.setVisibility(View.VISIBLE);
+                    editQuery.requestFocus();
+                }
+                else {
+                    keyboardSwitchButton.setBackground(getResources().getDrawable(R.drawable.keyboard));
+                    listenButton.setVisibility(View.VISIBLE);
+                    sendButton.setVisibility(View.GONE);
+                    editQuery.setVisibility(View.GONE);
+                    editQuery.clearFocus();
+                    keyboardSwitch=false;
+                }
+            }
+        });
+
+
+
+
         recyclerView = findViewById(R.id.recycler_view);
         //logoutButton = findViewById(R.id.logout_button);
         initializeActionList();
@@ -125,21 +192,12 @@ public class MainActivity extends Activity implements AIListener{
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
         //code to send queries from text
-        textQueryButton.setOnClickListener(new View.OnClickListener() {
+        sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final AIDataService aiDataService = new AIDataService(config);
-
-
                 final AIRequest aiRequest = new AIRequest();
                 aiRequest.setQuery(editQuery.getText().toString());
-
-
-
-
-
-
-
                 new AsyncTask<AIRequest, Void, AIResponse>() {
                     @Override
                     protected AIResponse doInBackground(AIRequest... requests) {
@@ -160,23 +218,15 @@ public class MainActivity extends Activity implements AIListener{
                             String receivedMessage = result.getFulfillment().getSpeech();
                             Chat chat = new Chat(sentMessage, "me");
                             chatList.add(chat);
-                            editQuery.setText("");
                             changeRecyclerView();
                             chat = new Chat(receivedMessage, "him");
                             chatList.add(chat);
                             changeRecyclerView();
+                            tts.speak(receivedMessage, TextToSpeech.QUEUE_FLUSH, null);
+                            editQuery.setText("");
                         }
                     }
                 }.execute(aiRequest);
-
-
-
-
-
-
-
-
-
             }
         });
 
@@ -256,7 +306,7 @@ public class MainActivity extends Activity implements AIListener{
                 }
                 //return name;
             }
-        }, this, query);
+        },"http://www.skyline69.co.nf/request.php?query=",  this, query);
     }
 
     private void initializeActionList() {
@@ -290,7 +340,7 @@ public class MainActivity extends Activity implements AIListener{
 
     @Override
     public void onResult(AIResponse response) {
-
+        Glide.with(this).load(R.drawable.init).into(listenButton);
         result = response.getResult();
         // Get parameters
         String parameterString = "";
@@ -310,13 +360,14 @@ public class MainActivity extends Activity implements AIListener{
             chat = new Chat(receivedMessage, "him");
             chatList.add(chat);
             changeRecyclerView();
+            tts.speak(receivedMessage, TextToSpeech.QUEUE_FLUSH, null);
         }
     }
     public void resolveQuery(String action){
         if (action.equals("query.phone")){
             if (mUser!=null){
                 String phone = mUser.getPhoneNumber().toString();
-                Toast.makeText(this, ""+customerID, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, ""+customerID, Toast.LENGTH_SHORT).show();
                 String receivedMessage = result.getFulfillment().getSpeech();
                 receivedMessage = receivedMessage+ " " +phone;
                 Chat chat = new Chat(receivedMessage, "him");
@@ -360,7 +411,7 @@ public class MainActivity extends Activity implements AIListener{
                         }
                         //return name;
                     }
-                }, this, query);
+                },"http://www.skyline69.co.nf/request.php?query=",  this, query);
             }
         }
         else if (action.equals("query.order.status")){
@@ -386,7 +437,9 @@ public class MainActivity extends Activity implements AIListener{
                             String orderID = obj.getString("OrderID");
                             String orderStatus = obj.getString("OrderStatus");
                             String dateOfDelivery = obj.getString("ScheduledDeliveryDate");
-                            receivedMessage = "Order ID: " +orderID + "\nOrder Status: " +orderStatus +"\nExpected Delivery date: " +dateOfDelivery;
+                            String quantity = obj.getString("QuantityofItems");
+                            String productName = obj.getString("ProductName");
+                            receivedMessage = "Order ID: " +orderID + "\nOrder Status: " +orderStatus +"\nExpected Delivery date: " +dateOfDelivery + "\nQuantity: " +quantity + "\nProduct Name: "+productName;
                             chat = new Chat(receivedMessage, "him");
                             chatList.add(chat);
                             changeRecyclerView();
@@ -409,7 +462,7 @@ public class MainActivity extends Activity implements AIListener{
                     }
                     //return name;
                 }
-            }, this, query);
+            },"http://www.skyline69.co.nf/request.php?query=",  this, query);
         }
         else if(action.equals("action.signout")){
             Handler handler = new Handler();
@@ -423,12 +476,33 @@ public class MainActivity extends Activity implements AIListener{
             }, 800);
 
         }
+        else if (action.equals("action.order")){
+            CustomDialogClass cdd=new CustomDialogClass(this, customerID);
+            cdd.show();
+            Handler mHandler = new Handler();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Chat chat = new Chat("Order Placed", "him");
+                    chatList.add(chat);
+                    changeRecyclerView();
+                }
+            }, 5000);
+        }
     }
 
     @Override
     public void onError(AIError error) {
         //resultTextView.setText(error.toString());
-        Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+        Glide.with(this).load(R.drawable.error).into(listenButton);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Glide.with(getApplicationContext()).load(R.drawable.init).into(listenButton);
+            }
+        }, 2000);
+        //Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -438,7 +512,7 @@ public class MainActivity extends Activity implements AIListener{
 
     @Override
     public void onListeningStarted() {
-
+        Glide.with(this).load(R.drawable.listening).into(listenButton);
     }
 
     @Override
@@ -448,7 +522,7 @@ public class MainActivity extends Activity implements AIListener{
 
     @Override
     public void onListeningFinished() {
-
+        Glide.with(this).load(R.drawable.processing).into(listenButton);
     }
 
     /*@Override

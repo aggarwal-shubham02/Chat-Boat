@@ -13,4 +13,14 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <string name="title_activity_fullscreen">FullscreenActivity</string>
+
+
+    <string name="Product_List">Choose a Product</string>
+    <string-array name="products">
+        <item>Dalmia FBC Cement</item>
+        <item>Dalmia 53 Grade Superoof</item>
+        <item>Dalmia PPC</item>
+        <item>Dalmia DSP Cement</item>
+        <item>Dalmia SRPC</item>
+    </string-array>
 </resources>

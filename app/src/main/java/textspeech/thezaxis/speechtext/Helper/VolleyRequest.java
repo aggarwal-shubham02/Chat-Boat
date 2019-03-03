@@ -23,12 +23,12 @@ public class VolleyRequest {
     String response1;
 
 
-    public void fetchData(final VolleyCallBack callback, Context context, String query){
+    public void fetchData(final VolleyCallBack callback, String url1, Context context, String query){
 
         //JSONArray jsonArray;
         //final Context context2= context;
         //String query = "Select CustomerName from Customer where CustomerContact = 9958146938";
-        String url="http://www.skyline69.co.nf/request.php?query="+query;
+        String url=url1+query;
         requestQueue= Volley.newRequestQueue(context);
         StringRequest request =new StringRequest(Request.Method.GET,url,
                 new Response.Listener<String>() {
